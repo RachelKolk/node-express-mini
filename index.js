@@ -23,9 +23,9 @@ server.post('/api/users', (req, res) => {
         .then(user => {
             res.status(201).json({success: true, user});
         }) 
-        .catch = () => {
+        .catch(err => {
             res.status(500).json({error: "There was an error while saving the user to the database" });
-        };
+        });
     }   
 });
 
@@ -37,9 +37,9 @@ server.get('/api/users', (req, res) => {
     .then(users => {
         res.status(200).json({success: true, users});
     })
-    .catch = () => {
+    .catch(err => {
         res.status(500).json({ error: "The users information could not be retrieved." });
-    };
+    });
 });
 
 
@@ -56,9 +56,9 @@ server.get('/api/users/:id', (req, res) => {
               res.status(404).json({ message: "The user with the specified ID does not exist." });
           }   
       })
-      .catch = () => {
+      .catch(err => {
         res.status(500).json({ error: "The user information could not be retrieved." });
-      };
+      });
 });
 
 
@@ -75,9 +75,33 @@ server.delete('/api/users/:id', (req, res) => {
               res.status(404).json({ message: "The user with the specified ID does not exist."});
           }
       })
-      .catch = () => {
+      .catch(err => {
           res.status(500).json({ error: "The user could not be removed" });
-      };
+    });
+});
+
+
+// PUT - updates the user with the entered info and returns the new user info
+server.put('/api/users/:id', (req, res) => {
+    const id = req.params.id;
+    const user = req.body;
+
+    if (user.name == null || user.bio == null) {
+        return res.status(400).json({ errorMessage: "Please provide name and bio for the user." });
+    } else {
+    db
+      .update(id, user)
+      .then(updated => {
+          if (updated) {
+            res.status(201).json({success: true, user});  
+          } else {
+            res.status(404).json({ message: "The user with the specified ID does not exist."});
+          }
+      })
+      .catch(err => {
+        res.status(500).json({ error: "The user information could not be modified." });
+      }
+      )};
 });
 
 server.listen(4000, () => {
